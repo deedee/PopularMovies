@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--https://pixabay.com/en/clapper-film-motion-picture-movies-156500/-->
+    <integer name="image_width">185</integer>
+    <integer name="image_height">278</integer>
+</resources>
