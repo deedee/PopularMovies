@@ -12,7 +12,7 @@ public class Movie implements Parcelable {
     private Double voteAverage;
     private String releaseDate;
 
-    final String TMDB_POSTER_BASE_URL = "https://image.tmdb.org/t/p/w342";
+    final String TMDB_POSTER_BASE_URL = "https://image.tmdb.org/t/p/w185";
 
     public Movie() {
     }

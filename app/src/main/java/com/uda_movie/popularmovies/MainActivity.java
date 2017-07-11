@@ -17,13 +17,17 @@ import android.widget.Toast;
 import com.uda_movie.popularmovies.model.Movie;
 import com.uda_movie.popularmovies.model.SortMethod;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements SettingDialogFragment.SettingDialogtListener{
 
     private GridView gridView;
     private Context context;
     private SortMethod sortMethod;
+    private List<Movie> movies;
+
 
     private final String LOG_TAG = MainActivity.class.getSimpleName();
 
@@ -54,20 +58,46 @@ public class MainActivity extends AppCompatActivity implements SettingDialogFrag
             Log.i(LOG_TAG, "OnCreate saveInstance null get data");
             getMoviesFromTMDb(Utils.getSortMethod(context));
         } else {
-            Log.i(LOG_TAG, "we have instance");
-            Parcelable[] parcelable = savedInstanceState.
-                    getParcelableArray(getString(R.string.movie_parcerable));
-
+            Log.i(LOG_TAG, "OnCreate we have instance");
+            List<Movie> parcelable = savedInstanceState.
+                    getParcelableArrayList(getString(R.string.movie_parcerable));
+            Log.i(LOG_TAG, "OnCreate parcel: " + parcelable);
             if (parcelable != null) {
-                int numMovieObjects = parcelable.length;
-                Movie[] movies = new Movie[numMovieObjects];
-                for (int i = 0; i < numMovieObjects; i++) {
-                    movies[i] = (Movie) parcelable[i];
-                }
+//                int numMovieObjects = parcelable.length;
+//                Movie[] movies = new Movie[numMovieObjects];
+//                for (int i = 0; i < numMovieObjects; i++) {
+//                    movies[i] = (Movie) parcelable[i];
+//                }
 
-
-                gridView.setAdapter(new MovieArrayAdapter(this, Arrays.asList(movies)));
+                movies = parcelable;
+                gridView.setAdapter(new MovieArrayAdapter(this, parcelable));
             }
+        }
+
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putParcelableArrayList(getString(R.string.movie_parcerable),
+                (ArrayList<Movie>) movies);
+        Log.i(LOG_TAG, "onSaveInstanceState parcel: " + movies);
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        List<Movie> parcelable = savedInstanceState.
+                getParcelableArrayList(getString(R.string.movie_parcerable));
+        Log.i(LOG_TAG, "onRestoreInstanceState parcel: " + parcelable);
+        if (parcelable != null) {
+//            int numMovieObjects = parcelable.length;
+//            Movie[] movies = new Movie[numMovieObjects];
+//            for (int i = 0; i < numMovieObjects; i++) {
+//                movies[i] = (Movie) parcelable[i];
+//            }
+
+            movies = parcelable;
+            gridView.setAdapter(new MovieArrayAdapter(this, parcelable));
         }
     }
 
@@ -112,13 +142,19 @@ public class MainActivity extends AppCompatActivity implements SettingDialogFrag
             // Listener for when AsyncTask is ready to update UI
             GetMovieTask.OnTaskCompleted taskCompletedListener = new GetMovieTask.OnTaskCompleted() {
                 @Override
-                public void onGetMoviesTaskCompleted(Movie[] movies) {
-                    gridView.setAdapter(new MovieArrayAdapter(getApplicationContext(), Arrays.asList(movies)));
+                public void onGetMoviesTaskCompleted(Movie[] moviesRes) {
+                    Log.i(LOG_TAG, "getMoviesFromTMDb task complete");
+                    if (moviesRes != null) {
+                        Log.i(LOG_TAG, "getMoviesFromTMDb got result");
+                        movies = new ArrayList<Movie>(Arrays.asList(moviesRes));
+                        gridView.setAdapter(new MovieArrayAdapter(getApplicationContext(), movies));
+                    }
                 }
             };
 
             // Execute task
             GetMovieTask movieTask = new GetMovieTask(taskCompletedListener, apiKey);
+            Log.i(LOG_TAG, "getMoviesFromTMDb execute");
             movieTask.execute(sortMethod);
         } else {
             Toast.makeText(this, getString(R.string.error_internet_required), Toast.LENGTH_LONG).show();

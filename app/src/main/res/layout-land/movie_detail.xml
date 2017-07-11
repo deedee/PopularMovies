@@ -24,20 +24,21 @@
             android:id="@+id/md_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/text_na"
-            android:textSize="@dimen/abc_text_size_large_material" />
+            android:textSize="@dimen/abc_text_size_large_material"
+            tools:text="This is Title"/>
 
         <TextView
             android:id="@+id/md_year"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/text_na"
-            android:textSize="@dimen/abc_text_size_large_material" />
+            android:textSize="@dimen/abc_text_size_large_material"
+            tools:text="2017" />
 
         <TextView
             android:id="@+id/md_rate"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            tools:text="rating: 8.0/10"/>
 
         <Button
             android:id="@+id/btn_favorite"
@@ -59,7 +60,8 @@
                 <TextView
                     android:id="@+id/md_overview"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="wrap_content"
+                    tools:text="This is overview\n.\n.\n.ok"/>
             </LinearLayout>
         </ScrollView>
     </LinearLayout>
