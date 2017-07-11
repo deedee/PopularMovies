@@ -2,7 +2,7 @@
     <string name="app_name">Popular Movies</string>
     <string name="title_movie_details_activity">Movie Detail</string>
     <string name="action_sort">Sort By</string>
-    <string name="api_key">19ef34383a3d8fad043a58e3bb4ae9d3</string>
+    <string name="api_key">{{INSERT YOUR TMDD API KEY HERE}}</string>
     <string name="action_add_favorite">Add to Favorite</string>
     <string name="text_na">...</string>
     <string name="sort_by">sort_by</string>
