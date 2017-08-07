@@ -2,7 +2,7 @@ package com.uda_movie.popularmovies.model;
 
 
 public enum SortMethod {
-    POPULAR(0), TOP_RATE(1);
+    POPULAR(0), TOP_RATE(1), FAVORITE(2);
 
     private final int value;
 

@@ -3,14 +3,20 @@ package com.uda_movie.popularmovies.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 public class Movie implements Parcelable {
     private static final String DATE_FORMAT = "yyyy-MM-dd";
+    private Long id;
     private String originalTitle;
     private String posterPath;
     private String overview;
     private Double voteAverage;
     private String releaseDate;
+    private List<MovieVideo> videos;
+    private List<MovieReview> reviews;
 
     final String TMDB_POSTER_BASE_URL = "https://image.tmdb.org/t/p/w185";
 
@@ -46,12 +52,23 @@ public class Movie implements Parcelable {
         }
     }
 
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public String getOriginalTitle() {
         return originalTitle;
     }
 
     public String getPosterPath() {
+        return posterPath;
+    }
+
+    public String getPosterUrl() {
         return TMDB_POSTER_BASE_URL + posterPath;
     }
 
@@ -61,7 +78,7 @@ public class Movie implements Parcelable {
     }
 
 
-    private Double getVoteAverage() {
+    public Double getVoteAverage() {
         return voteAverage;
     }
 
@@ -70,9 +87,24 @@ public class Movie implements Parcelable {
         return releaseDate;
     }
 
+    public List<MovieVideo> getVideos() {
+        return videos;
+    }
+
+    public void setVideos(List<MovieVideo> videos) {
+        this.videos = videos;
+    }
+
+    public List<MovieReview> getReviews() {
+        return reviews;
+    }
+
+    public void setReviews(List<MovieReview> reviews) {
+        this.reviews = reviews;
+    }
 
     public String getDetailedVoteAverage() {
-        return "rating: " + String.valueOf(getVoteAverage()) + "/10";
+        return String.valueOf(getVoteAverage()) + "/10";
     }
 
 
@@ -87,19 +119,25 @@ public class Movie implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        dest.writeLong(id);
         dest.writeString(originalTitle);
         dest.writeString(posterPath);
         dest.writeString(overview);
         dest.writeValue(voteAverage);
         dest.writeString(releaseDate);
+        dest.writeList(videos);
+        dest.writeList(reviews);
     }
 
     private Movie(Parcel in) {
+        id = in.readLong();
         originalTitle = in.readString();
         posterPath = in.readString();
         overview = in.readString();
         voteAverage = (Double) in.readValue(Double.class.getClassLoader());
         releaseDate = in.readString();
+        videos = (List<MovieVideo>) in.readArrayList(ArrayList.class.getClassLoader());
+        reviews = (List<MovieReview>) in.readArrayList(ArrayList.class.getClassLoader());
     }
 
     public static final Parcelable.Creator<Movie> CREATOR = new Parcelable.Creator<Movie>() {

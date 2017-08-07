@@ -3,5 +3,6 @@
     <array name="sort_by">
         <item>Popular</item>
         <item>Top rate</item>
+        <item>Favorite</item>
     </array>
 </resources>

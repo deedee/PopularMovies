@@ -2,8 +2,8 @@ package com.uda_movie.popularmovies;
 
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -14,8 +14,10 @@ import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.Toast;
 
+import com.uda_movie.popularmovies.model.FavoriteContract;
 import com.uda_movie.popularmovies.model.Movie;
 import com.uda_movie.popularmovies.model.SortMethod;
+import com.uda_movie.popularmovies.task.GetMovieTask;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -54,7 +56,7 @@ public class MainActivity extends AppCompatActivity implements SettingDialogFrag
             }
         });
 
-        if (savedInstanceState == null) {
+        if (savedInstanceState == null || Utils.getSortMethod(context) == SortMethod.FAVORITE) {
             Log.i(LOG_TAG, "OnCreate saveInstance null get data");
             getMoviesFromTMDb(Utils.getSortMethod(context));
         } else {
@@ -63,12 +65,6 @@ public class MainActivity extends AppCompatActivity implements SettingDialogFrag
                     getParcelableArrayList(getString(R.string.movie_parcerable));
             Log.i(LOG_TAG, "OnCreate parcel: " + parcelable);
             if (parcelable != null) {
-//                int numMovieObjects = parcelable.length;
-//                Movie[] movies = new Movie[numMovieObjects];
-//                for (int i = 0; i < numMovieObjects; i++) {
-//                    movies[i] = (Movie) parcelable[i];
-//                }
-
                 movies = parcelable;
                 gridView.setAdapter(new MovieArrayAdapter(this, parcelable));
             }
@@ -90,12 +86,6 @@ public class MainActivity extends AppCompatActivity implements SettingDialogFrag
                 getParcelableArrayList(getString(R.string.movie_parcerable));
         Log.i(LOG_TAG, "onRestoreInstanceState parcel: " + parcelable);
         if (parcelable != null) {
-//            int numMovieObjects = parcelable.length;
-//            Movie[] movies = new Movie[numMovieObjects];
-//            for (int i = 0; i < numMovieObjects; i++) {
-//                movies[i] = (Movie) parcelable[i];
-//            }
-
             movies = parcelable;
             gridView.setAdapter(new MovieArrayAdapter(this, parcelable));
         }
@@ -135,6 +125,15 @@ public class MainActivity extends AppCompatActivity implements SettingDialogFrag
      * @param sortMethod
      */
     private void getMoviesFromTMDb(SortMethod sortMethod) {
+        if (sortMethod == SortMethod.FAVORITE) {
+            if (!loadFavoriteFromDb()){
+                Toast.makeText(this, getString(R.string.no_favorite), Toast.LENGTH_SHORT).show();
+                sortMethod = SortMethod.POPULAR;
+                Utils.updatePreference(context, sortMethod);
+            } else {
+                return;
+            }
+        }
         if (Utils.isNetworkAvailable(this)) {
             // Key needed to get data from TMDb
             String apiKey = getString(R.string.api_key);
@@ -155,7 +154,13 @@ public class MainActivity extends AppCompatActivity implements SettingDialogFrag
             // Execute task
             GetMovieTask movieTask = new GetMovieTask(taskCompletedListener, apiKey);
             Log.i(LOG_TAG, "getMoviesFromTMDb execute");
-            movieTask.execute(sortMethod);
+            String tmdbTask;
+            if (sortMethod == SortMethod.POPULAR)
+                tmdbTask = GetMovieTask.GET_POPULAR;
+            else{
+                tmdbTask = GetMovieTask.GET_TOP_RATE;
+            }
+            movieTask.execute(tmdbTask);
         } else {
             Toast.makeText(this, getString(R.string.error_internet_required), Toast.LENGTH_LONG).show();
         }
@@ -164,8 +169,42 @@ public class MainActivity extends AppCompatActivity implements SettingDialogFrag
     @Override
     public void onSortMethodChange(SortMethod newSortMethod) {
         Log.i(LOG_TAG, sortMethod.toString());
-        getMoviesFromTMDb(newSortMethod);
+        if (newSortMethod == SortMethod.FAVORITE){
+            //load from db
+            if (!loadFavoriteFromDb()){
+                Toast.makeText(context,R.string.no_favorite,Toast.LENGTH_LONG).show();
+            }
+        } else {
+            getMoviesFromTMDb(newSortMethod);
+        }
 
         Toast.makeText(context,R.string.text_loading,Toast.LENGTH_LONG).show();
+    }
+
+    /**
+     * load favorite from db
+     *
+     * @return
+     */
+    private boolean loadFavoriteFromDb(){
+        Cursor result = getContentResolver().query(FavoriteContract.FavoriteEntry.CONTENT_URI,
+                null, null, null, FavoriteContract.FavoriteEntry.COLUMN_DATE + " DESC");
+        if (result.getCount() < 1){
+            return false;
+        }
+        movies = new ArrayList<Movie>();
+        for(int i = 0; i < result.getCount(); i++) {
+            result.moveToPosition(i);
+            Movie movie = new Movie();
+            movie.setId(result.getLong(result.getColumnIndex(FavoriteContract.FavoriteEntry.COLUMN_ID)));
+            movie.setOriginalTitle(result.getString(result.getColumnIndex(FavoriteContract.FavoriteEntry.COLUMN_TITLE)));
+            movie.setPosterPath(result.getString(result.getColumnIndex(FavoriteContract.FavoriteEntry.COLUMN_POSTER_PATH)));
+            movie.setReleaseDate(result.getString(result.getColumnIndex(FavoriteContract.FavoriteEntry.COLUMN_DATE)));
+            movie.setOverview(result.getString(result.getColumnIndex(FavoriteContract.FavoriteEntry.COLUMN_OVERVIEW)));
+            movie.setVoteAverage(result.getDouble(result.getColumnIndex(FavoriteContract.FavoriteEntry.COLUMN_VOTE)));
+            movies.add(movie);
+        }
+        gridView.setAdapter(new MovieArrayAdapter(this, movies));
+        return true;
     }
 }

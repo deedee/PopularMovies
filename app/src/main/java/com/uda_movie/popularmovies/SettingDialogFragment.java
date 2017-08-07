@@ -36,7 +36,7 @@ public class SettingDialogFragment extends DialogFragment {
             public void onClick(DialogInterface dialog, int id) {
 
                 if (newSortMethod != null && sortMethod != newSortMethod) {
-                    updatePreference(newSortMethod);
+                    Utils.updatePreference(getActivity().getApplicationContext(), newSortMethod);
                     //notify callback
                     listener.onSortMethodChange(newSortMethod);
                 }
@@ -45,13 +45,6 @@ public class SettingDialogFragment extends DialogFragment {
 
         return builder.create();
 
-    }
-
-    private void updatePreference(SortMethod sortMethod) {
-        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext());
-        SharedPreferences.Editor editor = pref.edit();
-        editor.putString(getString(R.string.sort_by), sortMethod.toString());
-        editor.apply();
     }
 
     @Override

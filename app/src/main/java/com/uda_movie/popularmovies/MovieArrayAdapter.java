@@ -38,7 +38,7 @@ public class MovieArrayAdapter extends ArrayAdapter<Movie> {
         }
 
         Picasso.with(getContext())
-                .load(movie.getPosterPath())
+                .load(movie.getPosterUrl())
                 .fit()
                 .centerInside()
                 .error(R.drawable.clapper_185)

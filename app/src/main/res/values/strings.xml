@@ -2,7 +2,7 @@
     <string name="app_name">Popular Movies</string>
     <string name="title_movie_details_activity">Movie Detail</string>
     <string name="action_sort">Sort By</string>
-    <string name="api_key">{{INSERT YOUR TMDD API KEY HERE}}</string>
+    <string name="api_key">19ef34383a3d8fad043a58e3bb4ae9d3</string>
     <string name="action_add_favorite">Add to Favorite</string>
     <string name="text_na">...</string>
     <string name="sort_by">sort_by</string>
@@ -10,8 +10,14 @@
     <string name="default_sort">POPULAR</string>
     <string name="movie_parcerable">movie_parcerable</string>
     <string name="error_internet_required">Error: internet required!</string>
+    <string name="error_occur">Error occured :(</string>
     <string name="text_no_summary_found">No summary found</string>
     <string name="text_loading">Loading...</string>
     <string name="text_ok">OK</string>
     <string name="text_no_data">No data recieved</string>
+    <string name="add_to_fav">Add To Favorite</string>
+    <string name="added_to_fav">You Like This!</string>
+    <string name="review_label">What people saying?</string>
+    <string name="no_favorite">You don\'t any favorite yet</string>
+    <string name="face_removed">Removed...</string>
 </resources>

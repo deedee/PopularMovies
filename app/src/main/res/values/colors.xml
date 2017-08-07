@@ -4,4 +4,5 @@
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
     <color name="text_overlay">#dc333643</color>
+    <color name="btn_disable">#bcbcbc</color>
 </resources>
