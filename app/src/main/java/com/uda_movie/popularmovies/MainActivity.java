@@ -14,6 +14,7 @@ import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.Toast;
 
+import com.uda_movie.popularmovies.adapter.MovieArrayAdapter;
 import com.uda_movie.popularmovies.model.FavoriteContract;
 import com.uda_movie.popularmovies.model.Movie;
 import com.uda_movie.popularmovies.model.SortMethod;
@@ -23,13 +24,20 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import butterknife.ButterKnife;
+import butterknife.BindView;
+
 public class MainActivity extends AppCompatActivity implements SettingDialogFragment.SettingDialogtListener{
 
-    private GridView gridView;
+    @BindView(R.id.gridview) GridView gridView;
+    @BindView(R.id.toolbar) Toolbar toolbar;
     private Context context;
     private SortMethod sortMethod;
     private List<Movie> movies;
 
+    private final String SCROLL_POS_KEY = "scroll_pos";
+    private final int RESULT_CODE = 1;
+    private int scrollPos;
 
     private final String LOG_TAG = MainActivity.class.getSimpleName();
 
@@ -37,13 +45,11 @@ public class MainActivity extends AppCompatActivity implements SettingDialogFrag
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        ButterKnife.bind(this);
         context = getApplicationContext();
-
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         sortMethod = Utils.getSortMethod(context);
-        gridView = (GridView) findViewById(R.id.gridview);
         gridView.setOnItemClickListener(new GridView.OnItemClickListener(){
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int pos, long l) {
@@ -51,13 +57,15 @@ public class MainActivity extends AppCompatActivity implements SettingDialogFrag
 
                 Intent intent = new Intent(getApplicationContext(), MovieDetailActivity.class);
                 intent.putExtra(getResources().getString(R.string.movie_parcerable), movie);
+                intent.putExtra(SCROLL_POS_KEY, pos);
 
-                startActivity(intent);
+                startActivityForResult(intent,RESULT_CODE);
             }
         });
 
         if (savedInstanceState == null || Utils.getSortMethod(context) == SortMethod.FAVORITE) {
             Log.i(LOG_TAG, "OnCreate saveInstance null get data");
+            scrollPos = 0;
             getMoviesFromTMDb(Utils.getSortMethod(context));
         } else {
             Log.i(LOG_TAG, "OnCreate we have instance");
@@ -76,6 +84,7 @@ public class MainActivity extends AppCompatActivity implements SettingDialogFrag
     protected void onSaveInstanceState(Bundle outState) {
         outState.putParcelableArrayList(getString(R.string.movie_parcerable),
                 (ArrayList<Movie>) movies);
+        outState.putInt(SCROLL_POS_KEY, gridView.getFirstVisiblePosition());
         Log.i(LOG_TAG, "onSaveInstanceState parcel: " + movies);
         super.onSaveInstanceState(outState);
     }
@@ -85,9 +94,11 @@ public class MainActivity extends AppCompatActivity implements SettingDialogFrag
         List<Movie> parcelable = savedInstanceState.
                 getParcelableArrayList(getString(R.string.movie_parcerable));
         Log.i(LOG_TAG, "onRestoreInstanceState parcel: " + parcelable);
+        scrollPos = savedInstanceState.getInt(SCROLL_POS_KEY);
         if (parcelable != null) {
             movies = parcelable;
             gridView.setAdapter(new MovieArrayAdapter(this, parcelable));
+            gridView.setSelection(scrollPos);
         }
     }
 
@@ -147,6 +158,7 @@ public class MainActivity extends AppCompatActivity implements SettingDialogFrag
                         Log.i(LOG_TAG, "getMoviesFromTMDb got result");
                         movies = new ArrayList<Movie>(Arrays.asList(moviesRes));
                         gridView.setAdapter(new MovieArrayAdapter(getApplicationContext(), movies));
+                        gridView.setSelection(scrollPos);
                     }
                 }
             };
@@ -167,8 +179,22 @@ public class MainActivity extends AppCompatActivity implements SettingDialogFrag
     }
 
     @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == RESULT_CODE) {
+            Bundle extras = data.getExtras();
+            if (extras != null){
+                scrollPos = extras.getInt(SCROLL_POS_KEY);
+                getMoviesFromTMDb(Utils.getSortMethod(context));
+            }
+        }
+
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    @Override
     public void onSortMethodChange(SortMethod newSortMethod) {
         Log.i(LOG_TAG, sortMethod.toString());
+        scrollPos = 0;
         if (newSortMethod == SortMethod.FAVORITE){
             //load from db
             if (!loadFavoriteFromDb()){

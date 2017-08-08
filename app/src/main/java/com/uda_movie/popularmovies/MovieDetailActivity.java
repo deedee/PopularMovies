@@ -10,6 +10,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -28,6 +29,9 @@ import com.uda_movie.popularmovies.task.GetMovieTask;
 
 import java.text.ParseException;
 
+import butterknife.ButterKnife;
+import butterknife.BindView;
+
 public class MovieDetailActivity extends AppCompatActivity {
 
     private final String LOG_TAG = MovieDetailActivity.class.getSimpleName();
@@ -35,36 +39,26 @@ public class MovieDetailActivity extends AppCompatActivity {
     private final String YOUTUBE = "youtube";
     private final String YOUTUBE_THUMB_URL = "https://img.youtube.com/vi/%s/sddefault.jpg";
     private final String YOUTUBE_WATCH_URL = "https://youtube.com/watch?v=%s";
+    private final int RESULT_CODE = 1;
 
-    private CollapsingToolbarLayout collapsingToolbarLayout;
-    private LinearLayout trailerContainer;
-    private LinearLayout reviewContainer;
-    private TextView originalTitle;
-    private ImageView poster;
-    private Button btnFavorite;
-    private TextView mOverView;
-    private TextView rate;
-    private TextView year;
-    private RatingBar rating;
+    @BindView(R.id.collapsing_toolbar) CollapsingToolbarLayout collapsingToolbarLayout;
+    @BindView(R.id.md_title) TextView originalTitle;
+    @BindView(R.id.md_poster) ImageView poster;
+    @BindView(R.id.md_overview) TextView mOverView;
+    @BindView(R.id.md_rate) TextView rate;
+    @BindView(R.id.md_year) TextView year;
+    @BindView(R.id.rating) RatingBar rating;
+    @BindView(R.id.add_to_fav) Button btnFavorite;
+    @BindView(R.id.trailers) LinearLayout trailerContainer;
+    @BindView(R.id.reviews) LinearLayout reviewContainer;
 
     private Movie movie;
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.movie_detail);
-
-        originalTitle = (TextView) findViewById(R.id.md_title);
-        poster = (ImageView) findViewById(R.id.md_poster);
-        mOverView = (TextView) findViewById(R.id.md_overview);
-        rate = (TextView) findViewById(R.id.md_rate);
-        year = (TextView) findViewById(R.id.md_year);
-        rating = (RatingBar) findViewById(R.id.rating);
-        btnFavorite = (Button) findViewById(R.id.add_to_fav);
-        trailerContainer = (LinearLayout) findViewById(R.id.trailers);
-        reviewContainer = (LinearLayout) findViewById(R.id.reviews);
+        ButterKnife.bind(this);
 
         btnFavorite.setOnClickListener(new View.OnClickListener(){
             @Override
@@ -132,7 +126,6 @@ public class MovieDetailActivity extends AppCompatActivity {
             setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-            collapsingToolbarLayout = (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
             collapsingToolbarLayout.setTitle(movie.getOriginalTitle());
             collapsingToolbarLayout.setExpandedTitleColor(getResources().getColor(android.R.color.transparent));
 
@@ -327,5 +320,22 @@ public class MovieDetailActivity extends AppCompatActivity {
             //fillReviews();
         }
         super.onRestoreInstanceState(savedInstanceState);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                setResult(RESULT_CODE,  getIntent());
+                finish();
+                break;
+        }
+        return true;
+    }
+
+    @Override
+    public void onBackPressed() {
+        setResult(RESULT_CODE,  getIntent());
+        finish();
     }
 }

@@ -1,4 +1,4 @@
-package com.uda_movie.popularmovies;
+package com.uda_movie.popularmovies.adapter;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
@@ -10,6 +10,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 
 import com.squareup.picasso.Picasso;
+import com.uda_movie.popularmovies.R;
 import com.uda_movie.popularmovies.model.Movie;
 
 import java.util.List;
